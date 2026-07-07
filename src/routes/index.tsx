@@ -4,17 +4,17 @@ import { PingStorePage } from "@/components/PingStorePage";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Ping! — Vibor-Inspired Identity Hardware" },
+      { title: "Ping! — Identity Hardware" },
       {
         name: "description",
         content:
           "Ping! by Ping Ring Inc. is a 2.5g titanium NFC identity ring for portfolios, links, and real-world connection.",
       },
-      { property: "og:title", content: "Ping! — Vibor-Inspired Identity Hardware" },
+      { property: "og:title", content: "Ping! — Identity Hardware" },
       {
         property: "og:description",
         content:
-          "A mirrored industrial product page for the Ping! NFC identity ring.",
+          "A black, white, and red industrial product page for the Ping! NFC identity ring.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
