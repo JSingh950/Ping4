@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useState } from "react";
 
 type PingStorePageProps = {
   variant?: "blueprint";
@@ -131,14 +131,19 @@ function TechnicalRing({ className = "", mirror = false }: { className?: string;
   return (
     <div
       aria-hidden="true"
-      className={`relative aspect-square ${className}`}
-      style={{ transform: mirror ? "scaleX(-1)" : undefined }}
+      className={`ring-stage relative aspect-square ${className}`}
+      style={{ "--ring-mirror": mirror ? "-1" : "1" } as CSSProperties}
     >
-      <div className="absolute inset-[9%] rounded-full border-[clamp(18px,3.4vw,46px)] border-zinc-200 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.28),transparent_18%),linear-gradient(132deg,#f5f5f5_0%,#6f6f6f_36%,#0a0a0a_54%,#d8d8d8_74%,#161616_100%)] shadow-[inset_20px_26px_54px_rgba(255,255,255,0.16),inset_-26px_-34px_58px_rgba(0,0,0,0.88),0_28px_70px_rgba(0,0,0,0.7)]" />
-      <div className="absolute inset-[31%] rounded-full bg-black shadow-[inset_0_0_40px_rgba(255,255,255,0.08)]" />
-      <div className="absolute left-[17%] top-1/2 h-px w-[66%] -translate-y-1/2 bg-white/45" />
-      <div className="absolute left-1/2 top-[17%] h-[66%] w-px -translate-x-1/2 bg-white/35" />
-      <div className="absolute right-[16%] top-[24%] h-2 w-2 rounded-full bg-[#d9362f] shadow-[0_0_18px_#d9362f]" />
+      <div className="ring-shadow" />
+      <div className="ring-orbit ring-orbit-back" />
+      <div className="ring-body">
+        <div className="ring-inner" />
+        <div className="ring-rim ring-rim-top" />
+        <div className="ring-rim ring-rim-bottom" />
+        <div className="ring-highlight" />
+        <div className="ring-nfc-dot" />
+      </div>
+      <div className="ring-orbit ring-orbit-front" />
     </div>
   );
 }
@@ -171,7 +176,7 @@ function ProductCard({
   index: number;
   progress: number;
 }) {
-  const offset = (progress - 0.34) * 80 * (index % 2 === 0 ? 1 : -1);
+  const offset = (progress - 0.34) * 46 * (index % 2 === 0 ? 1 : -1);
 
   return (
     <article
@@ -183,7 +188,7 @@ function ProductCard({
       <div className="product-copy flex flex-col justify-between p-6 md:p-10">
         <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#d9362f]">{product.code}</p>
         <div>
-          <h3 className="max-w-xl text-5xl font-semibold uppercase leading-[0.9] tracking-[-0.05em] md:text-7xl">
+          <h3 className="max-w-xl text-5xl font-semibold uppercase leading-[0.9] md:text-7xl">
             {product.title}
           </h3>
           <p className="mt-6 max-w-md text-sm uppercase leading-6 tracking-[0.08em] text-white/58">
@@ -195,7 +200,7 @@ function ProductCard({
 
       <div className="relative min-h-[30rem] overflow-hidden border-t border-white/20 bg-[#eeeeee] lg:border-l lg:border-t-0">
         <div
-          className="absolute inset-x-[-12%] top-1/2 -translate-y-1/2 opacity-95 transition-transform duration-700 ease-out"
+          className="absolute inset-x-0 top-1/2 -translate-y-1/2 opacity-95 transition-transform duration-700 ease-out"
           style={{ transform: `translate3d(${offset}px,-50%,0)` }}
         >
           {index === 1 ? (
@@ -236,7 +241,7 @@ function CollageField({ progress }: { progress: number }) {
       </div>
       <div className="relative z-10 flex min-h-[70vh] flex-col justify-end p-6 md:p-10">
         <p className="font-mono text-[10px] uppercase tracking-[0.36em] text-black/65">Download / Platform</p>
-        <h2 className="mt-4 max-w-4xl text-5xl font-semibold uppercase leading-[0.88] tracking-[-0.055em] md:text-8xl">
+        <h2 className="mt-4 max-w-4xl text-5xl font-semibold uppercase leading-[0.88] md:text-8xl">
           One ring. One profile. No battery ritual.
         </h2>
       </div>
@@ -249,9 +254,10 @@ export function PingStorePage(_: PingStorePageProps) {
   useRevealOnScroll();
 
   const heroTransform = useMemo(() => {
-    const y = Math.min(progress * 260, 90);
-    const scale = 1 + Math.min(progress * 0.18, 0.08);
-    return `translate3d(0, ${y}px, 0) scale(${scale})`;
+    const y = Math.min(progress * 520, 155);
+    const scale = 1 + Math.min(progress * 0.36, 0.16);
+    const rotate = Math.min(progress * 18, 7);
+    return `translate3d(0, ${y}px, 0) rotate(${rotate}deg) scale(${scale})`;
   }, [progress]);
 
   return (
@@ -259,6 +265,104 @@ export function PingStorePage(_: PingStorePageProps) {
       <ScrollRail progress={progress} />
 
       <style>{`
+        .hero-video {
+          filter: grayscale(1) contrast(1.18) brightness(0.55);
+        }
+        .hero-vignette {
+          background:
+            radial-gradient(circle at 70% 38%, rgba(255,255,255,0.12), transparent 28%),
+            linear-gradient(180deg, rgba(0,0,0,0.54), rgba(0,0,0,0.18) 42%, rgba(0,0,0,0.92)),
+            linear-gradient(90deg, rgba(0,0,0,0.82), transparent 46%, rgba(0,0,0,0.46));
+        }
+        .ring-stage {
+          --ring-mirror: 1;
+          contain: layout paint;
+          perspective: 1100px;
+          transform: scaleX(var(--ring-mirror));
+          transform-style: preserve-3d;
+        }
+        .ring-body {
+          position: absolute;
+          inset: 9%;
+          border-radius: 9999px;
+          transform: rotateX(62deg) rotateZ(-18deg);
+          transform-style: preserve-3d;
+          background:
+            radial-gradient(circle at 36% 24%, rgba(255,255,255,0.8), transparent 11%),
+            radial-gradient(circle at 63% 76%, rgba(0,0,0,0.9), transparent 28%),
+            conic-gradient(from 210deg, #050505, #f5f5f5 12%, #606060 22%, #070707 37%, #d7d7d7 52%, #1b1b1b 66%, #ededed 78%, #111 100%);
+          box-shadow:
+            inset 0 0 0 clamp(18px, 3.4vw, 50px) rgba(235,235,235,0.96),
+            inset 26px 22px 48px rgba(255,255,255,0.22),
+            inset -30px -36px 56px rgba(0,0,0,0.92),
+            0 34px 82px rgba(0,0,0,0.78);
+        }
+        .ring-inner {
+          position: absolute;
+          inset: 31%;
+          border-radius: 9999px;
+          background:
+            radial-gradient(circle at 44% 30%, rgba(255,255,255,0.16), transparent 34%),
+            #020202;
+          box-shadow:
+            inset 0 0 44px rgba(255,255,255,0.12),
+            0 0 0 1px rgba(0,0,0,0.85);
+        }
+        .ring-rim {
+          position: absolute;
+          left: 21%;
+          right: 21%;
+          height: 10%;
+          border-radius: 9999px;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.92), rgba(0,0,0,0.12), transparent);
+          filter: blur(0.2px);
+        }
+        .ring-rim-top { top: 18%; transform: translateZ(32px); opacity: 0.82; }
+        .ring-rim-bottom { bottom: 18%; transform: translateZ(-18px); opacity: 0.34; }
+        .ring-highlight {
+          position: absolute;
+          left: 19%;
+          top: 34%;
+          width: 62%;
+          height: 1px;
+          background: rgba(255,255,255,0.62);
+          transform: translateZ(46px);
+        }
+        .ring-nfc-dot {
+          position: absolute;
+          right: 16%;
+          top: 24%;
+          width: clamp(7px, 1.2vw, 12px);
+          height: clamp(7px, 1.2vw, 12px);
+          border-radius: 9999px;
+          background: #d9362f;
+          box-shadow: 0 0 18px #d9362f;
+          transform: translateZ(54px);
+        }
+        .ring-orbit {
+          position: absolute;
+          inset: 19%;
+          border: 1px solid rgba(255,255,255,0.38);
+          border-radius: 9999px;
+          transform: rotateX(68deg) rotateZ(-18deg);
+        }
+        .ring-orbit-back { opacity: 0.24; }
+        .ring-orbit-front {
+          inset: 13%;
+          border-color: rgba(217,54,47,0.72);
+          opacity: 0.56;
+          transform: rotateX(68deg) rotateZ(-18deg) translateZ(34px);
+        }
+        .ring-shadow {
+          position: absolute;
+          left: 12%;
+          right: 12%;
+          bottom: 6%;
+          height: 17%;
+          border-radius: 9999px;
+          background: radial-gradient(ellipse, rgba(0,0,0,0.68), transparent 70%);
+          filter: blur(14px);
+        }
         [data-reveal] {
           opacity: 0;
           transform: translateY(56px);
@@ -300,36 +404,50 @@ export function PingStorePage(_: PingStorePageProps) {
         </div>
       </header>
 
-      <section id="top" className="relative min-h-screen overflow-hidden border-b border-white/20 bg-black pt-20">
-        <div className="absolute inset-x-0 top-[7vh] z-0 select-none overflow-hidden">
-          <h1 className="whitespace-nowrap text-[32vw] font-semibold uppercase leading-[0.68] tracking-[-0.1em] text-white">
-            Ping!
-          </h1>
-        </div>
+      <section id="top" className="relative min-h-[145vh] border-b border-white/20 bg-black">
+        <div className="sticky top-0 min-h-screen overflow-hidden pt-20">
+          <video
+            aria-label="Ping ring product motion"
+            autoPlay
+            className="hero-video absolute inset-0 h-full w-full object-cover"
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            src="/media/ping-hero.mp4"
+          />
+          <div className="hero-vignette absolute inset-0" />
 
-        <div className="relative z-10 grid min-h-[calc(100vh-5rem)] grid-rows-[1fr_auto] px-5 pb-8 md:px-10">
-          <div className="relative min-h-[62vh]">
-            <div
-              className="absolute inset-0 flex items-center justify-center will-change-transform"
-              style={{ transform: heroTransform }}
-            >
-              <TechnicalRing className="w-[82vw] max-w-[54rem] opacity-95" />
-              <TechnicalRing className="absolute right-[1%] top-[4%] w-[34vw] max-w-[23rem] opacity-30" mirror />
-              <TechnicalRing className="absolute bottom-[3%] left-[6%] w-[24vw] max-w-[16rem] opacity-20" />
-            </div>
+          <div className="absolute inset-x-0 top-[10vh] z-0 select-none px-5 md:px-10">
+            <h1 className="max-w-full whitespace-nowrap text-center text-[22vw] font-semibold uppercase leading-[0.82] text-white drop-shadow-[0_18px_42px_rgba(0,0,0,0.95)] md:text-[24vw]">
+              Ping!
+            </h1>
           </div>
 
-          <div className="grid gap-6 border-t border-white/20 pt-6 lg:grid-cols-[0.84fr_1.16fr]">
-            <p data-reveal className="max-w-xs text-[10px] uppercase leading-5 tracking-[0.2em] text-white/55">
-              Based in real-world connection and working everywhere modern NFC readers already exist.
-            </p>
-            <div data-reveal className="max-w-3xl justify-self-end text-right">
-              <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#d9362f]">
-                NFC identity hardware / 2.5g titanium
+          <div className="relative z-10 grid min-h-[calc(100vh-5rem)] grid-rows-[1fr_auto] px-5 pb-8 md:px-10">
+            <div className="relative min-h-[50vh] md:min-h-[58vh]">
+              <div
+                className="absolute inset-x-0 bottom-0 top-[6%] mx-auto flex max-w-6xl items-center justify-center will-change-transform"
+                style={{ transform: heroTransform }}
+              >
+                <TechnicalRing className="w-[min(74vw,48rem)] opacity-95" />
+                <TechnicalRing className="absolute right-[4%] top-[2%] hidden w-[min(30vw,18rem)] opacity-[0.26] sm:block" mirror />
+                <TechnicalRing className="absolute bottom-[2%] left-[6%] hidden w-[min(22vw,13rem)] opacity-[0.18] sm:block" />
+              </div>
+            </div>
+
+            <div className="grid gap-6 border-t border-white/20 bg-black/10 pt-6 backdrop-blur-[2px] lg:grid-cols-[0.84fr_1.16fr]">
+              <p data-reveal className="max-w-xs text-[10px] uppercase leading-5 tracking-[0.2em] text-white/58">
+                Based in real-world connection and working everywhere modern NFC readers already exist.
               </p>
-              <p className="mt-4 text-2xl font-medium leading-tight tracking-[-0.04em] text-white md:text-4xl">
-                Ping! is a titanium NFC ring for identity, portfolios, and bridging an in-person meeting to your digital trail.
-              </p>
+              <div data-reveal className="max-w-3xl justify-self-end text-right">
+                <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#d9362f]">
+                  NFC identity hardware / 2.5g titanium
+                </p>
+                <p className="mt-4 text-2xl font-medium leading-tight text-white md:text-4xl">
+                  Ping! is a titanium NFC ring for identity, portfolios, and bridging an in-person meeting to your digital trail.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -342,7 +460,7 @@ export function PingStorePage(_: PingStorePageProps) {
           </p>
         </div>
         <div data-reveal className="flex items-center p-6 md:p-10">
-          <h2 className="max-w-4xl text-4xl font-semibold uppercase leading-[0.95] tracking-[-0.05em] md:text-6xl">
+          <h2 className="max-w-4xl text-4xl font-semibold uppercase leading-[0.95] md:text-6xl">
             Not a health tracker. Not a business card. A precise object for the return of human signal.
           </h2>
         </div>
@@ -354,7 +472,7 @@ export function PingStorePage(_: PingStorePageProps) {
             <h2 className="text-sm uppercase tracking-[0.32em] text-white/65">Products</h2>
           </div>
           <div className="border-t border-white/20 p-6 md:border-l md:border-t-0 md:p-10">
-            <p className="max-w-3xl text-2xl font-medium uppercase leading-tight tracking-[-0.03em] md:text-4xl">
+            <p className="max-w-3xl text-2xl font-medium uppercase leading-tight md:text-4xl">
               A premium hardware gateway to a clean digital identity platform.
             </p>
           </div>
@@ -370,7 +488,7 @@ export function PingStorePage(_: PingStorePageProps) {
           <div className="sticky top-0 hidden h-screen border-r border-white/20 p-10 md:flex md:flex-col md:justify-between">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#d9362f]">Why choose Ping!</p>
-              <h2 className="mt-5 text-7xl font-semibold uppercase leading-[0.86] tracking-[-0.06em]">Why now</h2>
+              <h2 className="mt-5 text-7xl font-semibold uppercase leading-[0.86]">Why now</h2>
             </div>
             <TechnicalRing className="w-[22rem] opacity-70" mirror />
           </div>
@@ -385,7 +503,7 @@ export function PingStorePage(_: PingStorePageProps) {
                 <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#d9362f]">
                   0{index + 1} / why now
                 </p>
-                <h3 className="mt-12 max-w-3xl text-4xl font-semibold uppercase leading-[0.9] tracking-[-0.05em] md:text-7xl">
+                <h3 className="mt-12 max-w-3xl text-4xl font-semibold uppercase leading-[0.9] md:text-7xl">
                   {item.title}
                 </h3>
                 <p className="mt-8 max-w-2xl text-sm uppercase leading-7 tracking-[0.08em] text-white/58">
@@ -403,7 +521,7 @@ export function PingStorePage(_: PingStorePageProps) {
         <div data-reveal className="grid md:grid-cols-[0.7fr_1.3fr]">
           <div className="p-6 md:p-10">
             <h2 className="text-sm uppercase tracking-[0.32em] text-white/65">Why choose</h2>
-            <h3 className="mt-3 text-5xl font-semibold uppercase leading-[0.86] tracking-[-0.055em] md:text-7xl">
+            <h3 className="mt-3 text-5xl font-semibold uppercase leading-[0.86] md:text-7xl">
               Ping!
             </h3>
           </div>
@@ -411,7 +529,7 @@ export function PingStorePage(_: PingStorePageProps) {
             {advantages.map((item) => (
               <article key={item.label} className="min-h-[25rem] border-b border-white/20 p-6 md:border-b-0 md:border-r md:p-8">
                 <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#d9362f]">{item.label}</p>
-                <h4 className="mt-12 text-3xl font-semibold uppercase leading-[0.95] tracking-[-0.04em]">{item.title}</h4>
+                <h4 className="mt-12 text-3xl font-semibold uppercase leading-[0.95]">{item.title}</h4>
                 <p className="mt-6 text-xs uppercase leading-6 tracking-[0.08em] text-white/56">{item.body}</p>
               </article>
             ))}
@@ -423,7 +541,7 @@ export function PingStorePage(_: PingStorePageProps) {
         <div data-reveal className="grid min-h-[70vh] md:grid-cols-2">
           <div className="flex flex-col justify-between border-b border-white/20 p-6 md:border-b-0 md:border-r md:p-10">
             <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#d9362f]">Team pedigree</p>
-            <h2 className="mt-16 text-5xl font-semibold uppercase leading-[0.86] tracking-[-0.055em] md:text-8xl">
+            <h2 className="mt-16 text-5xl font-semibold uppercase leading-[0.86] md:text-8xl">
               Built by AI and product operators.
             </h2>
           </div>
@@ -431,7 +549,7 @@ export function PingStorePage(_: PingStorePageProps) {
             {team.map((person) => (
               <article key={person.name} className="border-b border-white/20 p-6 last:border-b-0 md:p-10">
                 <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#d9362f]">{person.role}</p>
-                <h3 className="mt-6 text-4xl font-semibold uppercase leading-[0.9] tracking-[-0.045em] md:text-6xl">
+                <h3 className="mt-6 text-4xl font-semibold uppercase leading-[0.9] md:text-6xl">
                   {person.name}
                 </h3>
                 <p className="mt-8 max-w-2xl text-sm uppercase leading-7 tracking-[0.08em] text-white/58">
@@ -455,7 +573,7 @@ export function PingStorePage(_: PingStorePageProps) {
         <div data-reveal className="grid min-h-[75vh] items-end gap-10 p-6 md:grid-cols-[1.2fr_0.8fr] md:p-10">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#d9362f]">Configuration</p>
-            <h2 className="mt-6 max-w-5xl text-6xl font-semibold uppercase leading-[0.82] tracking-[-0.07em] md:text-9xl">
+            <h2 className="mt-6 max-w-5xl text-6xl font-semibold uppercase leading-[0.82] md:text-9xl">
               Tap into signal.
             </h2>
           </div>

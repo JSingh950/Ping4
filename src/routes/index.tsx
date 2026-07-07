@@ -8,13 +8,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Ping! by Ping Ring Inc. is a 2.5g titanium NFC identity ring for portfolios, links, and real-world connection.",
+          "Ping! by Ping Ring Inc. is a 2.5g titanium NFC identity ring presented with a cinematic video hero and dimensional product models.",
       },
       { property: "og:title", content: "Ping! — Identity Hardware" },
       {
         property: "og:description",
         content:
-          "A black, white, and red industrial product page for the Ping! NFC identity ring.",
+          "A black, white, and red industrial product page with a video-backed hero and dimensional Ping! ring models.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
