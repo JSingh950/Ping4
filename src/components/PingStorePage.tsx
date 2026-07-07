@@ -141,16 +141,23 @@ function ProductImage({
   alt,
   className = "",
   imageClassName = "",
+  fit = "cover",
   src,
 }: {
   alt: string;
   className?: string;
+  fit?: "contain" | "cover";
   imageClassName?: string;
   src: string;
 }) {
   return (
     <figure className={`relative isolate overflow-hidden bg-black ${className}`}>
-      <img alt={alt} className={`h-full w-full object-cover ${imageClassName}`} draggable={false} src={src} />
+      <img
+        alt={alt}
+        className={`h-full w-full ${fit === "contain" ? "object-contain" : "object-cover"} ${imageClassName}`}
+        draggable={false}
+        src={src}
+      />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.02),rgba(0,0,0,0.24))]" />
     </figure>
   );
@@ -184,7 +191,8 @@ function ProductCard({
           <ProductImage
             alt={product.imageAlt}
             className="h-full w-full"
-            imageClassName={index === 1 ? "object-[52%_50%]" : "object-center"}
+            fit={index === 1 ? "contain" : "cover"}
+            imageClassName={index === 1 ? "bg-[#0b2f17] object-center p-6 md:p-10" : "object-center"}
             src={product.image}
           />
         </div>
