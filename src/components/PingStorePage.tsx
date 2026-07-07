@@ -1,429 +1,487 @@
-import { useMemo, useState } from "react";
-
-type Variant = "matrix" | "lookbook" | "blueprint" | "fluid";
+import { useEffect, useMemo, useState } from "react";
 
 type PingStorePageProps = {
-  variant: Variant;
+  variant?: "blueprint";
 };
 
-const finishes = [
+const productLines = [
   {
-    name: "Signal Black",
-    tone: "bg-neutral-950",
-    detail: "black titanium / mirror edge",
+    code: "P-01",
+    title: "Identity Ring",
+    body: "A titanium NFC object for sharing your selected profile, contacts, socials, portfolios, and links in one physical tap.",
   },
   {
-    name: "Raw Titanium",
-    tone: "bg-zinc-300",
-    detail: "brushed silver / 2mm profile",
+    code: "N-02",
+    title: "Native NFC",
+    body: "Works with every modern iPhone and Android device out of the box. No scanner app is required on the receiving phone.",
   },
   {
-    name: "Circuit Green",
-    tone: "bg-[#00FF66]",
-    detail: "limited electric accent",
+    code: "S-03",
+    title: "Signal System",
+    body: "A free web and mobile platform for turning real-world introductions into a connected digital trail.",
   },
 ];
 
 const whyNow = [
   {
-    title: "Real connection is rare again",
-    body: "After years of digital-first interaction and AI-generated noise, people want physical moments that feel human at conferences, coworking spaces, clubs, and campuses.",
+    title: "Paper Cards Collapse",
+    body: "Over 27 billion paper business cards are printed globally each year, and 88% are thrown away within a week. Ping! replaces the disposable exchange with a durable hardware gesture.",
   },
   {
-    title: "Business cards are functionally dead",
-    body: "More than 27 billion paper business cards are printed globally every year, and 88% are thrown away within a week. Ping! turns the exchange into a tap that cannot be lost in a pocket.",
+    title: "Digital Noise Is Rising",
+    body: "AI has made online interactions feel more synthetic. People are looking for real in-person connection at conferences, coworking spaces, clubs, campuses, and creative events.",
   },
   {
-    title: "NFC is already native",
-    body: "Modern iPhone and Android devices read NFC without a scanning app. A single tap can open contacts, socials, portfolios, links, and the digital trail you choose to share.",
+    title: "NFC Is Already Everywhere",
+    body: "Modern iOS and Android devices read NFC natively, so one tap can open a curated identity page without asking someone to download an app.",
   },
 ];
 
-const specs = [
+const advantages = [
   {
-    eyebrow: "STRUCTURE",
-    title: "2.5g titanium, built like jewelry.",
-    body: "An ultra-lightweight titanium smart ring with a thin 2mm profile, designed for identity and connection rather than health tracking.",
-    stat: "2.5g",
+    label: "Technical Support",
+    title: "Built for the moment of meeting.",
+    body: "Ping! removes the awkward QR-code pause and the lost-card follow-up loop. The exchange happens through the object already on your hand.",
   },
   {
-    eyebrow: "POWER",
-    title: "Zero-charging footprint.",
-    body: "Ping! uses built-in NFC, so the everyday exchange feels instant and native with no battery ritual added to your life.",
-    stat: "0x",
+    label: "Product Quality",
+    title: "2.5g titanium. 2mm profile.",
+    body: "Ultra-lightweight titanium gives the product the presence of jewelry without turning it into another health tracker or charging routine.",
   },
   {
-    eyebrow: "REACH",
-    title: "Every tap is a live product demo.",
-    body: "Early cohorts scaled beyond 270 active rings, with each in-person tap showing the product to someone new in the wild.",
-    stat: "270+",
+    label: "Customization",
+    title: "Your profile, your signal.",
+    body: "Choose the digital trail you want to share: contacts, socials, portfolio links, calendar routes, and personal sites.",
   },
 ];
 
 const team = [
   {
-    name: "Vaness “Reece” Gardner",
+    name: "Vaness \"Reece\" Gardner",
     role: "Founder & CEO",
-    body: "Former AI specialist at Babson College and Babson alum. Founded The Generator, an AI lab that grew past 1,000 members across the Boston technology landscape, including MIT, Harvard, researchers, venture partners, students, and local business owners.",
-    focus: "Strategic vision, wearable design, supply chain logistics, institutional sales, ecosystem relationships.",
+    detail:
+      "Former AI specialist at Babson College and founder of The Generator, Babson's AI lab that scaled past 1,000 members across MIT, Harvard, venture partners, researchers, students, and local business owners.",
   },
   {
     name: "Gaspard Seuge",
     role: "Co-Founder & CPO",
-    body: "HEC Paris educated product architect. Former Growth at MWM AI and AI Engineer at Sorare, the multi-billion-dollar fantasy sports web3 platform. Built the Ping! web and iOS apps and helped drive 300K+ organic impressions.",
-    focus: "Software product, brand systems, UX, mobile and web applications, go-to-market strategy.",
+    detail:
+      "HEC Paris educated product architect. Former Growth at MWM AI and AI Engineer at Sorare. Built Ping!'s web and iOS applications and helped drive 300K+ organic impressions.",
   },
 ];
 
-const variants = {
-  matrix: {
-    label: "The Cinematic Matrix",
-    bg: "bg-black",
-    page: "font-sans tracking-tight",
-    nav: "border-[#00FF66]/35 bg-black/85 text-white",
-    heroGrid: "border-[#00FF66]/40",
-    media: "border-[#00FF66]/40 bg-black",
-    panel: "border-[#00FF66]/50 bg-black",
-    title: "text-5xl font-black uppercase leading-[0.86] text-white md:text-7xl lg:text-8xl",
-    subtitle: "text-lg font-semibold uppercase text-white md:text-xl",
-    copy: "text-sm leading-6 text-zinc-400",
-    accent: "text-[#00FF66]",
-    button: "border border-[#00FF66] bg-[#00FF66] px-6 py-4 text-sm font-black uppercase tracking-[0.24em] text-black transition hover:bg-black hover:text-[#00FF66]",
-    secondaryButton: "border border-[#00FF66]/60 px-5 py-4 text-xs font-bold uppercase tracking-[0.22em] text-[#00FF66]",
-    section: "border-t border-[#00FF66]/35",
-    card: "border border-[#00FF66]/35 bg-black",
-    serif: "",
-    mono: "font-mono",
-    round: "rounded-none",
-    ringGlow: "shadow-[0_0_70px_rgba(0,255,102,0.24)]",
-  },
-  lookbook: {
-    label: "The High-End Technical Lookbook",
-    bg: "bg-black",
-    page: "font-sans tracking-tight",
-    nav: "border-white/10 bg-black/75 text-white",
-    heroGrid: "border-white/10",
-    media: "border-white/10 bg-black",
-    panel: "border-white/10 bg-black",
-    title: "font-serif text-5xl leading-[0.95] text-white md:text-7xl lg:text-8xl",
-    subtitle: "font-serif text-2xl leading-tight text-white md:text-4xl",
-    copy: "text-sm leading-7 text-zinc-400",
-    accent: "text-[#00C853]",
-    button: "border border-white bg-white px-6 py-4 text-xs font-semibold uppercase tracking-[0.24em] text-black transition hover:border-[#00C853] hover:bg-[#00C853]",
-    secondaryButton: "px-0 py-4 text-xs uppercase tracking-[0.24em] text-[#00C853]",
-    section: "border-t border-white/10",
-    card: "border-0 bg-transparent",
-    serif: "font-serif",
-    mono: "font-mono",
-    round: "rounded-none",
-    ringGlow: "",
-  },
-  blueprint: {
-    label: "The Functional Blueprint Grid",
-    bg: "bg-black",
-    page: "font-mono tracking-tight",
-    nav: "border-[#00FF66]/45 bg-black text-white",
-    heroGrid: "border-[#00FF66]/45",
-    media: "border-[#00FF66]/45 bg-black",
-    panel: "border-[#00FF66]/45 bg-black",
-    title: "text-4xl font-bold uppercase leading-[0.92] text-white md:text-6xl lg:text-7xl",
-    subtitle: "text-lg font-bold uppercase text-white md:text-2xl",
-    copy: "text-xs leading-6 text-zinc-400",
-    accent: "text-[#00FF66]",
-    button: "border border-[#00FF66] bg-[#00FF66] px-6 py-4 text-xs font-bold uppercase tracking-[0.18em] text-black transition hover:bg-black hover:text-[#00FF66]",
-    secondaryButton: "border border-zinc-700 px-5 py-4 text-xs font-bold uppercase tracking-[0.18em] text-white",
-    section: "border-t border-[#00FF66]/45",
-    card: "border border-zinc-700 bg-black",
-    serif: "",
-    mono: "font-mono",
-    round: "rounded-none",
-    ringGlow: "shadow-[0_0_0_1px_rgba(0,255,102,0.5)]",
-  },
-  fluid: {
-    label: "The Fluid Motion Darkmode",
-    bg: "bg-black",
-    page: "font-sans tracking-tight",
-    nav: "border-white/10 bg-black/75 text-white backdrop-blur-xl",
-    heroGrid: "border-white/10",
-    media: "border-white/10 bg-zinc-950/70",
-    panel: "border-white/10 bg-zinc-950/65 backdrop-blur-xl",
-    title: "text-5xl font-semibold leading-[0.92] text-white md:text-7xl lg:text-8xl",
-    subtitle: "text-xl font-medium leading-tight text-zinc-100 md:text-3xl",
-    copy: "text-sm leading-7 text-zinc-400",
-    accent: "text-[#00FF66]",
-    button: "rounded-full bg-[#00FF66] px-7 py-4 text-sm font-bold text-black transition hover:scale-[1.02] hover:bg-white",
-    secondaryButton: "rounded-full border border-white/15 px-5 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-white",
-    section: "border-t border-white/10",
-    card: "rounded-[2rem] border border-white/10 bg-white/[0.03] backdrop-blur",
-    serif: "",
-    mono: "font-mono",
-    round: "rounded-[2rem]",
-    ringGlow: "shadow-[0_0_100px_rgba(0,255,102,0.2)]",
-  },
-} satisfies Record<Variant, Record<string, string>>;
+function useScrollProgress() {
+  const [progress, setProgress] = useState(0);
 
-function RingVisual({
-  variant,
-  tone,
-  label,
-  large = false,
-}: {
-  variant: Variant;
-  tone: string;
-  label: string;
-  large?: boolean;
-}) {
-  const v = variants[variant];
-  const isFluid = variant === "fluid";
-  const isBlueprint = variant === "blueprint";
+  useEffect(() => {
+    const update = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(scrollable > 0 ? window.scrollY / scrollable : 0);
+    };
 
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
+  return Math.min(Math.max(progress, 0), 1);
+}
+
+function useRevealOnScroll() {
+  useEffect(() => {
+    const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.setAttribute("data-visible", "true");
+          }
+        });
+      },
+      { threshold: 0.18, rootMargin: "0px 0px -8% 0px" },
+    );
+
+    elements.forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
+}
+
+function ScrollRail({ progress }: { progress: number }) {
   return (
-    <div className={`relative isolate flex min-h-[22rem] items-center justify-center overflow-hidden ${v.media} ${v.round}`}>
-      {isFluid ? (
-        <div className="absolute inset-8 rounded-full bg-[radial-gradient(circle_at_45%_42%,rgba(0,255,102,0.36),transparent_44%),radial-gradient(circle_at_60%_70%,rgba(0,200,83,0.22),transparent_42%)] blur-2xl" />
-      ) : null}
-      {isBlueprint ? (
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,102,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,102,.12)_1px,transparent_1px)] bg-[size:34px_34px]" />
-      ) : null}
+    <div className="fixed right-3 top-1/2 z-50 hidden h-[42vh] w-px -translate-y-1/2 bg-white/20 lg:block">
       <div
-        className={`relative aspect-square ${large ? "w-56 md:w-72" : "w-44 md:w-56"} rounded-full border-[18px] md:border-[24px] ${tone} border-current text-zinc-200 ${v.ringGlow}`}
-      >
-        <div className="absolute inset-[22%] rounded-full bg-black" />
-        <div className="absolute left-1/2 top-[-16%] h-10 w-[2px] -translate-x-1/2 bg-[#00FF66]" />
-        <div className="absolute bottom-[-2.75rem] left-1/2 -translate-x-1/2 whitespace-nowrap text-center">
-          <p className={`text-[10px] uppercase tracking-[0.28em] ${v.accent}`}>{label}</p>
-        </div>
+        className="absolute left-1/2 top-0 w-[3px] -translate-x-1/2 bg-[#00ff66] shadow-[0_0_20px_rgba(0,255,102,0.95)]"
+        style={{ height: `${Math.max(progress * 100, 9)}%` }}
+      />
+      <span className="absolute -left-11 top-0 font-mono text-[9px] uppercase tracking-[0.24em] text-white/45">
+        Scroll
+      </span>
+      <span className="absolute -left-12 bottom-0 font-mono text-[9px] text-[#00ff66]">
+        {String(Math.round(progress * 100)).padStart(2, "0")}
+      </span>
+    </div>
+  );
+}
+
+function TechnicalRing({ className = "", mirror = false }: { className?: string; mirror?: boolean }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={`relative aspect-square ${className}`}
+      style={{ transform: mirror ? "scaleX(-1)" : undefined }}
+    >
+      <div className="absolute inset-[9%] rounded-full border-[clamp(18px,3.4vw,46px)] border-zinc-200 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.28),transparent_18%),linear-gradient(132deg,#f5f5f5_0%,#6f6f6f_36%,#0a0a0a_54%,#d8d8d8_74%,#161616_100%)] shadow-[inset_20px_26px_54px_rgba(255,255,255,0.16),inset_-26px_-34px_58px_rgba(0,0,0,0.88),0_28px_70px_rgba(0,0,0,0.7)]" />
+      <div className="absolute inset-[31%] rounded-full bg-black shadow-[inset_0_0_40px_rgba(255,255,255,0.08)]" />
+      <div className="absolute left-[17%] top-1/2 h-px w-[66%] -translate-y-1/2 bg-white/45" />
+      <div className="absolute left-1/2 top-[17%] h-[66%] w-px -translate-x-1/2 bg-white/35" />
+      <div className="absolute right-[16%] top-[24%] h-2 w-2 rounded-full bg-[#00ff66] shadow-[0_0_18px_#00ff66]" />
+    </div>
+  );
+}
+
+function PhoneTapVisual() {
+  return (
+    <div aria-hidden="true" className="relative mx-auto h-[28rem] w-full max-w-[36rem]">
+      <div className="absolute left-[8%] top-[12%] h-[68%] w-[38%] border border-white/40 bg-black shadow-[0_34px_80px_rgba(0,0,0,0.8)]">
+        <div className="mx-auto mt-5 h-1 w-14 bg-white/25" />
+        <div className="mx-8 mt-16 h-px bg-[#00ff66]" />
+        <div className="mx-8 mt-5 h-3 bg-white/85" />
+        <div className="mx-8 mt-4 h-3 w-2/3 bg-white/45" />
+        <div className="absolute bottom-8 left-8 right-8 h-16 border border-white/25" />
+      </div>
+      <TechnicalRing className="absolute right-[3%] top-[19%] w-[54%]" />
+      <div className="absolute left-[46%] top-[46%] h-px w-[30%] bg-[#00ff66] shadow-[0_0_16px_#00ff66]" />
+      <div className="absolute bottom-10 right-2 font-mono text-[10px] uppercase tracking-[0.22em] text-[#00ff66]">
+        NFC native read / active
       </div>
     </div>
   );
 }
 
-export function PingStorePage({ variant }: PingStorePageProps) {
-  const [finish, setFinish] = useState(finishes[0]);
-  const [openWhy, setOpenWhy] = useState(0);
-  const [activeSpec, setActiveSpec] = useState(0);
-  const v = variants[variant];
-
-  const heroTagline = useMemo(() => {
-    if (variant === "lookbook") return "A titanium object for the return of real-world identity.";
-    if (variant === "blueprint") return "[OBJECT: NFC IDENTITY RING] engineered for physical-to-digital connection.";
-    if (variant === "fluid") return "Tap into the person in front of you, then carry the connection forward.";
-    return "The NFC identity ring for a world tired of cold digital noise.";
-  }, [variant]);
+function ProductCard({
+  product,
+  index,
+  progress,
+}: {
+  product: (typeof productLines)[number];
+  index: number;
+  progress: number;
+}) {
+  const offset = (progress - 0.34) * 80 * (index % 2 === 0 ? 1 : -1);
 
   return (
-    <main className={`${v.bg} ${v.page} min-h-screen text-white`}>
-      <header className={`sticky top-0 z-50 flex items-center justify-between border-b px-5 py-4 md:px-8 ${v.nav}`}>
-        <a href="#top" className="text-sm font-bold uppercase tracking-[0.28em]">
-          Ping!
+    <article
+      data-reveal
+      className={`group grid min-h-[38rem] border-t border-white/20 bg-black lg:grid-cols-2 ${
+        index % 2 === 1 ? "lg:[&_.product-copy]:order-2" : ""
+      }`}
+    >
+      <div className="product-copy flex flex-col justify-between p-6 md:p-10">
+        <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#00ff66]">{product.code}</p>
+        <div>
+          <h3 className="max-w-xl text-5xl font-semibold uppercase leading-[0.9] tracking-[-0.05em] md:text-7xl">
+            {product.title}
+          </h3>
+          <p className="mt-6 max-w-md text-sm uppercase leading-6 tracking-[0.08em] text-white/58">
+            {product.body}
+          </p>
+        </div>
+        <span className="mt-10 h-px w-full bg-white/20" />
+      </div>
+
+      <div className="relative min-h-[30rem] overflow-hidden border-t border-white/20 bg-[#eeeeee] lg:border-l lg:border-t-0">
+        <div
+          className="absolute inset-x-[-12%] top-1/2 -translate-y-1/2 opacity-95 transition-transform duration-700 ease-out"
+          style={{ transform: `translate3d(${offset}px,-50%,0)` }}
+        >
+          {index === 1 ? (
+            <PhoneTapVisual />
+          ) : (
+            <div className="relative mx-auto h-[28rem] max-w-[38rem]">
+              <TechnicalRing className="absolute left-[8%] top-[8%] w-[58%]" mirror={index === 2} />
+              <TechnicalRing className="absolute right-[2%] top-[22%] w-[38%] opacity-35" mirror={index === 0} />
+              <div className="absolute bottom-8 left-10 right-10 h-px bg-black/25" />
+              <div className="absolute bottom-12 left-10 font-mono text-[10px] uppercase tracking-[0.24em] text-black/60">
+                Titanium / passive NFC / no charge port
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function CollageField({ progress }: { progress: number }) {
+  const shift = (progress - 0.7) * -160;
+
+  return (
+    <div data-reveal className="relative min-h-[70vh] overflow-hidden border-y border-white/20 bg-[#efefef] text-black">
+      <div
+        className="absolute inset-y-0 left-1/2 flex w-[150vw] -translate-x-1/2 items-center justify-center gap-14 opacity-95"
+        style={{ transform: `translate3d(calc(-50% + ${shift}px),0,0)` }}
+      >
+        {Array.from({ length: 7 }).map((_, index) => (
+          <TechnicalRing
+            // eslint-disable-next-line react/no-array-index-key
+            key={index}
+            className={`w-[18rem] shrink-0 md:w-[24rem] ${index % 2 === 0 ? "opacity-100" : "opacity-45"}`}
+            mirror={index % 2 === 1}
+          />
+        ))}
+      </div>
+      <div className="relative z-10 flex min-h-[70vh] flex-col justify-end p-6 md:p-10">
+        <p className="font-mono text-[10px] uppercase tracking-[0.36em] text-black/65">Download / Platform</p>
+        <h2 className="mt-4 max-w-4xl text-5xl font-semibold uppercase leading-[0.88] tracking-[-0.055em] md:text-8xl">
+          One ring. One profile. No battery ritual.
+        </h2>
+      </div>
+    </div>
+  );
+}
+
+export function PingStorePage(_: PingStorePageProps) {
+  const progress = useScrollProgress();
+  useRevealOnScroll();
+
+  const heroTransform = useMemo(() => {
+    const y = Math.min(progress * 260, 90);
+    const scale = 1 + Math.min(progress * 0.18, 0.08);
+    return `translate3d(0, ${y}px, 0) scale(${scale})`;
+  }, [progress]);
+
+  return (
+    <main className="min-h-screen overflow-x-hidden bg-black font-sans text-white">
+      <ScrollRail progress={progress} />
+
+      <style>{`
+        [data-reveal] {
+          opacity: 0;
+          transform: translateY(56px);
+          transition: opacity 900ms ease, transform 900ms cubic-bezier(.2,.75,.1,1);
+        }
+        [data-reveal][data-visible="true"] {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .ping-marquee {
+          animation: ping-marquee 22s linear infinite;
+        }
+        @keyframes ping-marquee {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+      `}</style>
+
+      <header className="fixed left-0 right-0 top-0 z-40 grid grid-cols-[1fr_auto_1fr] items-center border-b border-white/10 bg-black/78 px-5 py-5 text-[10px] uppercase tracking-[0.28em] backdrop-blur md:px-10">
+        <a href="#top" className="font-semibold text-white">
+          Ping Ring Inc.
         </a>
-        <nav className="hidden items-center gap-8 text-[11px] uppercase tracking-[0.24em] text-zinc-400 md:flex">
-          <a className="transition hover:text-[#00FF66]" href="#why">Why now</a>
-          <a className="transition hover:text-[#00FF66]" href="#specs">Specs</a>
-          <a className="transition hover:text-[#00FF66]" href="#team">Team</a>
+        <nav className="hidden items-center gap-8 text-white/60 md:flex">
+          <a className="transition hover:text-[#00ff66]" href="#products">
+            Products
+          </a>
+          <a className="transition hover:text-[#00ff66]" href="#why">
+            Why now
+          </a>
+          <a className="transition hover:text-[#00ff66]" href="#team">
+            Team
+          </a>
+          <a className="transition hover:text-[#00ff66]" href="#contact">
+            Contact
+          </a>
         </nav>
-        <a className={variant === "fluid" ? "rounded-full bg-white px-4 py-2 text-xs font-bold text-black" : `text-xs uppercase tracking-[0.22em] ${v.accent}`} href="#buy">
-          Get Ping!
-        </a>
+        <div className="justify-self-end text-white/60">
+          <span className="text-[#00ff66]">ID</span> | NFC
+        </div>
       </header>
 
-      <section id="top" className={`grid min-h-screen border-b lg:grid-cols-[minmax(0,1.12fr)_minmax(25rem,0.88fr)] ${v.heroGrid}`}>
-        <div className="grid gap-px bg-white/10 p-px lg:grid-cols-2">
-          <div className="lg:col-span-2">
-            <RingVisual variant={variant} tone={finish.tone} label={finish.name} large />
-          </div>
-          {finishes.map((item) => (
-            <button
-              key={item.name}
-              className="text-left"
-              onClick={() => setFinish(item)}
-              type="button"
-            >
-              <RingVisual variant={variant} tone={item.tone} label={item.name} />
-            </button>
-          ))}
+      <section id="top" className="relative min-h-screen overflow-hidden border-b border-white/20 bg-black pt-20">
+        <div className="absolute inset-x-0 top-[8vh] z-0 select-none overflow-hidden">
+          <h1 className="whitespace-nowrap text-[30vw] font-semibold uppercase leading-[0.7] tracking-[-0.09em] text-white">
+            Ping!
+          </h1>
         </div>
 
-        <aside className={`lg:sticky lg:top-[57px] lg:h-[calc(100vh-57px)] ${v.panel}`} id="buy">
-          <div className="flex h-full flex-col justify-between gap-10 p-6 md:p-10">
-            <div>
-              <div className={`mb-8 flex items-center justify-between border-b pb-5 ${variant === "matrix" || variant === "blueprint" ? "border-[#00FF66]/35" : "border-white/10"}`}>
-                <span className={`text-[11px] uppercase tracking-[0.28em] ${v.accent}`}>{v.label}</span>
-                <span className={`text-[11px] uppercase tracking-[0.28em] ${variant === "blueprint" ? "text-[#00FF66]" : "text-zinc-500"}`}>NFC / 2.5g</span>
-              </div>
-              <p className={`mb-3 text-sm uppercase tracking-[0.3em] ${v.accent}`}>Ping! by Ping Ring Inc.</p>
-              <h1 className={v.title}>Ping!</h1>
-              <p className={`mt-7 max-w-xl ${v.subtitle}`}>{heroTagline}</p>
-              <p className={`mt-5 max-w-xl ${v.copy}`}>
-                A smart ring designed purely for identity, portfolios, and bridging in-person connection to your digital trail. It is not a health tracker.
+        <div className="relative z-10 grid min-h-[calc(100vh-5rem)] grid-rows-[1fr_auto] px-5 pb-8 md:px-10">
+          <div className="grid items-center lg:grid-cols-[0.9fr_1.1fr]">
+            <div data-reveal className="max-w-md self-end pb-8 lg:self-center">
+              <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#00ff66]">
+                NFC identity hardware / 2.5g titanium
               </p>
-            </div>
-
-            <div className="space-y-8">
-              <div>
-                <div className="mb-4 flex items-center justify-between">
-                  <p className={`text-xs uppercase tracking-[0.24em] ${v.accent}`}>Select finish</p>
-                  <p className="text-xs text-zinc-500">{finish.detail}</p>
-                </div>
-                <div className="grid gap-3">
-                  {finishes.map((item) => (
-                    <button
-                      className={`flex items-center justify-between border px-4 py-4 text-left transition ${
-                        finish.name === item.name
-                          ? "border-[#00FF66] text-white"
-                          : "border-white/12 text-zinc-400 hover:border-[#00FF66]/60 hover:text-white"
-                      } ${variant === "fluid" ? "rounded-full" : "rounded-none"}`}
-                      key={item.name}
-                      onClick={() => setFinish(item)}
-                      type="button"
-                    >
-                      <span className="text-sm font-semibold">{item.name}</span>
-                      <span className={`h-4 w-4 rounded-full border border-white/30 ${item.tone}`} />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className={`grid grid-cols-3 border text-center ${variant === "matrix" || variant === "blueprint" ? "border-[#00FF66]/35" : "border-white/10"} ${variant === "fluid" ? "rounded-[1.5rem] overflow-hidden" : ""}`}>
-                {["2.5g titanium", "native NFC", "no scan app"].map((item) => (
-                  <div className="border-r border-inherit px-3 py-4 last:border-r-0" key={item}>
-                    <p className={`text-[10px] uppercase tracking-[0.18em] ${variant === "blueprint" ? "text-[#00FF66]" : "text-zinc-400"}`}>{item}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <a className={`${v.button} text-center`} href="mailto:hello@getping.today?subject=Get%20Ping!">
-                  Get Ping!
-                </a>
-                <a className={`${v.secondaryButton} text-center`} href="#why">
-                  Why now
-                </a>
-              </div>
-            </div>
-          </div>
-        </aside>
-      </section>
-
-      <section id="why" className={`px-5 py-20 md:px-8 lg:py-28 ${v.section}`}>
-        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.72fr_1fr]">
-          <div>
-            <p className={`mb-4 text-xs uppercase tracking-[0.28em] ${v.accent}`}>Why now</p>
-            <h2 className={variant === "lookbook" ? `${v.serif} text-5xl leading-tight md:text-7xl` : "text-4xl font-bold uppercase leading-tight md:text-6xl"}>
-              The moment for a physical digital identity key.
-            </h2>
-          </div>
-          <div className={`divide-y ${variant === "matrix" || variant === "blueprint" ? "divide-[#00FF66]/35" : "divide-white/10"}`}>
-            {whyNow.map((item, index) => (
-              <div key={item.title}>
-                <button
-                  className="flex w-full items-center justify-between gap-6 py-7 text-left"
-                  onClick={() => setOpenWhy(openWhy === index ? -1 : index)}
-                  type="button"
-                >
-                  <span className="text-xl font-semibold text-white md:text-2xl">{item.title}</span>
-                  <span className={`text-3xl leading-none ${v.accent}`}>{openWhy === index ? "-" : "+"}</span>
-                </button>
-                <div className={`grid transition-all duration-500 ${openWhy === index ? "grid-rows-[1fr] pb-8" : "grid-rows-[0fr]"}`}>
-                  <div className="overflow-hidden">
-                    <p className={`max-w-3xl ${v.copy}`}>{item.body}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="specs" className={`min-h-screen px-5 py-20 md:px-8 lg:py-28 ${v.section}`}>
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-            <div>
-              <p className={`mb-4 text-xs uppercase tracking-[0.28em] ${v.accent}`}>Macro specification carousel</p>
-              <h2 className={variant === "lookbook" ? `${v.serif} text-5xl leading-tight md:text-7xl` : "text-4xl font-bold uppercase leading-tight md:text-6xl"}>
-                Hardware with nothing extra.
+              <h2 className="mt-5 text-5xl font-semibold uppercase leading-[0.86] tracking-[-0.055em] md:text-7xl">
+                Real-world identity. Activated by touch.
               </h2>
             </div>
-            <div className="flex gap-2">
-              {specs.map((item, index) => (
-                <button
-                  aria-label={`Show ${item.eyebrow}`}
-                  className={`h-2.5 w-10 transition ${activeSpec === index ? "bg-[#00FF66]" : "bg-white/20"}`}
-                  key={item.eyebrow}
-                  onClick={() => setActiveSpec(index)}
-                  type="button"
-                />
-              ))}
+
+            <div className="relative min-h-[54vh] lg:min-h-[72vh]">
+              <div
+                className="absolute inset-0 flex items-center justify-center will-change-transform"
+                style={{ transform: heroTransform }}
+              >
+                <TechnicalRing className="w-[72vw] max-w-[50rem]" />
+                <TechnicalRing className="absolute right-[2%] top-[12%] w-[32vw] max-w-[22rem] opacity-35" mirror />
+              </div>
             </div>
           </div>
 
-          <div className={`grid min-h-[34rem] overflow-hidden ${v.card} ${variant === "fluid" ? "lg:grid-cols-[0.9fr_1.1fr]" : "lg:grid-cols-2"}`}>
-            <div className="relative flex items-center justify-center overflow-hidden border-b border-white/10 p-8 lg:border-b-0 lg:border-r">
-              {variant === "fluid" ? <div className="absolute h-96 w-96 rounded-full bg-[#00FF66]/20 blur-3xl" /> : null}
-              {variant === "blueprint" ? <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] bg-[size:50px_50px]" /> : null}
-              <div className={`relative flex aspect-square w-64 items-center justify-center rounded-full border ${variant === "fluid" ? "border-[#00FF66]/35 bg-black/60" : "border-[#00FF66]/60"}`}>
-                <span className={`${v.accent} ${variant === "lookbook" ? "font-serif text-8xl" : "text-7xl font-black"}`}>{specs[activeSpec].stat}</span>
-              </div>
-            </div>
-            <div className="flex flex-col justify-between p-8 md:p-12">
-              <div>
-                <p className={`mb-6 text-xs uppercase tracking-[0.28em] ${v.accent}`}>
-                  {variant === "blueprint" ? `[STATUS: ${specs[activeSpec].eyebrow}]` : specs[activeSpec].eyebrow}
-                </p>
-                <h3 className={variant === "lookbook" ? `${v.serif} text-5xl leading-tight text-white md:text-7xl` : "text-4xl font-bold uppercase leading-tight text-white md:text-6xl"}>
-                  {specs[activeSpec].title}
-                </h3>
-                <p className={`mt-8 max-w-xl ${v.copy}`}>{specs[activeSpec].body}</p>
-              </div>
-              <div className="mt-12 grid gap-3 md:grid-cols-3">
-                {specs.map((item, index) => (
-                  <button
-                    className={`border p-4 text-left transition ${activeSpec === index ? "border-[#00FF66] text-white" : "border-white/10 text-zinc-500 hover:text-white"}`}
-                    key={item.eyebrow}
-                    onClick={() => setActiveSpec(index)}
-                    type="button"
-                  >
-                    <p className={`text-[10px] uppercase tracking-[0.2em] ${activeSpec === index ? v.accent : ""}`}>{item.eyebrow}</p>
-                    <p className="mt-2 text-sm">{item.title}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
+          <div className="grid gap-6 border-t border-white/20 pt-6 lg:grid-cols-[1fr_1fr]">
+            <p className="max-w-xs text-[10px] uppercase leading-5 tracking-[0.2em] text-white/55">
+              Based in physical connection and working everywhere modern NFC readers already exist.
+            </p>
+            <p className="max-w-xl justify-self-end text-right text-2xl font-medium leading-tight tracking-[-0.04em] text-white md:text-3xl">
+              Ping! is an NFC-enabled smart ring for identity, portfolios, and bridging an in-person meeting to your digital trail.
+            </p>
           </div>
         </div>
       </section>
 
-      <section id="team" className={`px-5 py-20 md:px-8 lg:py-28 ${v.section}`}>
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-12 max-w-3xl">
-            <p className={`mb-4 text-xs uppercase tracking-[0.28em] ${v.accent}`}>Creator / team pedigree</p>
-            <h2 className={variant === "lookbook" ? `${v.serif} text-5xl leading-tight md:text-7xl` : "text-4xl font-bold uppercase leading-tight md:text-6xl"}>
-              Built by AI-native product operators.
-            </h2>
+      <section className="grid min-h-[50vh] border-b border-white/20 md:grid-cols-[0.86fr_1.14fr]">
+        <div data-reveal className="flex items-end border-b border-white/20 p-6 md:border-b-0 md:border-r md:p-10">
+          <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#00ff66]">
+            Born from text-to-image-to-3D AI workflows
+          </p>
+        </div>
+        <div data-reveal className="flex items-center p-6 md:p-10">
+          <h2 className="max-w-4xl text-4xl font-semibold uppercase leading-[0.95] tracking-[-0.05em] md:text-6xl">
+            Not a health tracker. Not a business card. A precise object for the return of human signal.
+          </h2>
+        </div>
+      </section>
+
+      <section id="products">
+        <div data-reveal className="grid border-b border-white/20 md:grid-cols-[0.72fr_1.28fr]">
+          <div className="p-6 md:p-10">
+            <h2 className="text-sm uppercase tracking-[0.32em] text-white/65">Products</h2>
           </div>
-          <div className={`grid ${variant === "lookbook" ? "gap-12 lg:grid-cols-2" : "gap-px bg-white/10 lg:grid-cols-2"}`}>
-            {team.map((person) => (
-              <article className={`${variant === "lookbook" ? "border-t border-white/10 pt-8" : `${v.card} p-8 md:p-10`}`} key={person.name}>
-                <p className={`mb-5 text-xs uppercase tracking-[0.28em] ${v.accent}`}>{person.role}</p>
-                <h3 className={variant === "lookbook" ? `${v.serif} text-4xl leading-tight text-white md:text-6xl` : "text-3xl font-bold uppercase leading-tight text-white md:text-5xl"}>
-                  {person.name}
+          <div className="border-t border-white/20 p-6 md:border-l md:border-t-0 md:p-10">
+            <p className="max-w-3xl text-2xl font-medium uppercase leading-tight tracking-[-0.03em] md:text-4xl">
+              A premium hardware gateway to a clean digital identity platform.
+            </p>
+          </div>
+        </div>
+
+        {productLines.map((product, index) => (
+          <ProductCard key={product.code} product={product} index={index} progress={progress} />
+        ))}
+      </section>
+
+      <section id="why" className="border-t border-white/20">
+        <div className="grid min-h-screen md:grid-cols-[0.95fr_1.05fr]">
+          <div className="sticky top-0 hidden h-screen border-r border-white/20 p-10 md:flex md:flex-col md:justify-between">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#00ff66]">Why choose Ping!</p>
+              <h2 className="mt-5 text-7xl font-semibold uppercase leading-[0.86] tracking-[-0.06em]">Why now</h2>
+            </div>
+            <TechnicalRing className="w-[22rem] opacity-70" mirror />
+          </div>
+
+          <div>
+            {whyNow.map((item, index) => (
+              <article
+                data-reveal
+                key={item.title}
+                className="min-h-[56vh] border-b border-white/20 p-6 md:p-10"
+              >
+                <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#00ff66]">
+                  0{index + 1} / why now
+                </p>
+                <h3 className="mt-12 max-w-3xl text-4xl font-semibold uppercase leading-[0.9] tracking-[-0.05em] md:text-7xl">
+                  {item.title}
                 </h3>
-                <p className={`mt-7 ${v.copy}`}>{person.body}</p>
-                <div className={`mt-8 border-t pt-6 ${variant === "matrix" || variant === "blueprint" ? "border-[#00FF66]/35" : "border-white/10"}`}>
-                  <p className={`mb-2 text-[10px] uppercase tracking-[0.24em] ${v.accent}`}>Focus</p>
-                  <p className="text-sm leading-6 text-zinc-300">{person.focus}</p>
-                </div>
+                <p className="mt-8 max-w-2xl text-sm uppercase leading-7 tracking-[0.08em] text-white/58">
+                  {item.body}
+                </p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <footer className={`px-5 py-10 md:px-8 ${v.section}`}>
-        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 text-xs uppercase tracking-[0.22em] text-zinc-500 md:flex-row">
-          <p>Ping! by Ping Ring Inc.</p>
-          <p>Identity. Portfolios. Real-world connection.</p>
+      <CollageField progress={progress} />
+
+      <section className="border-b border-white/20">
+        <div data-reveal className="grid md:grid-cols-[0.7fr_1.3fr]">
+          <div className="p-6 md:p-10">
+            <h2 className="text-sm uppercase tracking-[0.32em] text-white/65">Why choose</h2>
+            <h3 className="mt-3 text-5xl font-semibold uppercase leading-[0.86] tracking-[-0.055em] md:text-7xl">
+              Ping!
+            </h3>
+          </div>
+          <div className="grid border-t border-white/20 md:grid-cols-3 md:border-l md:border-t-0">
+            {advantages.map((item) => (
+              <article key={item.label} className="min-h-[25rem] border-b border-white/20 p-6 md:border-b-0 md:border-r md:p-8">
+                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#00ff66]">{item.label}</p>
+                <h4 className="mt-12 text-3xl font-semibold uppercase leading-[0.95] tracking-[-0.04em]">{item.title}</h4>
+                <p className="mt-6 text-xs uppercase leading-6 tracking-[0.08em] text-white/56">{item.body}</p>
+              </article>
+            ))}
+          </div>
         </div>
+      </section>
+
+      <section id="team" className="border-b border-white/20">
+        <div data-reveal className="grid min-h-[70vh] md:grid-cols-2">
+          <div className="flex flex-col justify-between border-b border-white/20 p-6 md:border-b-0 md:border-r md:p-10">
+            <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#00ff66]">Team pedigree</p>
+            <h2 className="mt-16 text-5xl font-semibold uppercase leading-[0.86] tracking-[-0.055em] md:text-8xl">
+              Built by AI and product operators.
+            </h2>
+          </div>
+          <div>
+            {team.map((person) => (
+              <article key={person.name} className="border-b border-white/20 p-6 last:border-b-0 md:p-10">
+                <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#00ff66]">{person.role}</p>
+                <h3 className="mt-6 text-4xl font-semibold uppercase leading-[0.9] tracking-[-0.045em] md:text-6xl">
+                  {person.name}
+                </h3>
+                <p className="mt-8 max-w-2xl text-sm uppercase leading-7 tracking-[0.08em] text-white/58">
+                  {person.detail}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" className="overflow-hidden border-b border-white/20">
+        <div className="ping-marquee flex w-[200%] border-b border-white/20 py-5 font-mono text-[10px] uppercase tracking-[0.32em] text-[#00ff66]">
+          <span className="w-1/2">
+            Get Ping! / NFC identity ring / real-world connection / 2.5g titanium / native iPhone and Android read /
+          </span>
+          <span className="w-1/2">
+            Get Ping! / NFC identity ring / real-world connection / 2.5g titanium / native iPhone and Android read /
+          </span>
+        </div>
+        <div data-reveal className="grid min-h-[75vh] items-end gap-10 p-6 md:grid-cols-[1.2fr_0.8fr] md:p-10">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#00ff66]">Configuration</p>
+            <h2 className="mt-6 max-w-5xl text-6xl font-semibold uppercase leading-[0.82] tracking-[-0.07em] md:text-9xl">
+              Tap into signal.
+            </h2>
+          </div>
+          <div className="max-w-md justify-self-end">
+            <p className="text-sm uppercase leading-7 tracking-[0.08em] text-white/60">
+              Ping! turns the jewelry form factor into a premium gateway for your real-world identity. Share the digital trail you choose without adding another battery-powered device to your life.
+            </p>
+            <a
+              href="https://getping.today"
+              className="mt-8 inline-flex border border-[#00ff66] bg-[#00ff66] px-8 py-4 font-mono text-[10px] font-bold uppercase tracking-[0.28em] text-black transition hover:bg-black hover:text-[#00ff66]"
+            >
+              Get Ping!
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <footer className="grid gap-8 px-6 py-8 font-mono text-[10px] uppercase tracking-[0.22em] text-white/45 md:grid-cols-3 md:px-10">
+        <p>Ping Ring Inc.</p>
+        <p>Identity / Portfolios / Physical-to-digital connection</p>
+        <p className="md:text-right">NFC native / No health tracking</p>
       </footer>
     </main>
   );
