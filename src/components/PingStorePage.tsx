@@ -159,14 +159,10 @@ function ProductImage({
 function ProductCard({
   product,
   index,
-  progress,
 }: {
   product: (typeof productLines)[number];
   index: number;
-  progress: number;
 }) {
-  const offset = (progress - 0.34) * 34 * (index % 2 === 0 ? 1 : -1);
-
   return (
     <article
       data-reveal
@@ -183,11 +179,11 @@ function ProductCard({
         <span className="mt-10 h-px w-full bg-white/20" />
       </div>
 
-      <div className="relative min-h-[30rem] overflow-hidden border-t border-white/20 bg-[#eeeeee] p-5 lg:border-l lg:border-t-0 md:p-8">
-        <div className="flex h-full items-center justify-center transition-transform duration-700 ease-out" style={{ transform: `translate3d(${offset}px,0,0)` }}>
+      <div className="relative min-h-[30rem] overflow-hidden border-t border-white/20 bg-[#eeeeee] lg:border-l lg:border-t-0">
+        <div className="absolute inset-0">
           <ProductImage
             alt={product.imageAlt}
-            className="h-[25rem] w-full max-w-[43rem] border border-black/10 shadow-[0_34px_90px_rgba(0,0,0,0.24)] md:h-[30rem]"
+            className="h-full w-full"
             imageClassName={index === 1 ? "object-[52%_50%]" : "object-center"}
             src={product.image}
           />
@@ -232,11 +228,7 @@ export function PingStorePage(_: PingStorePageProps) {
   const progress = useScrollProgress();
   useRevealOnScroll();
 
-  const heroTransform = useMemo(() => {
-    const y = Math.min(progress * 420, 120);
-    const scale = 1 + Math.min(progress * 0.24, 0.12);
-    return `translate3d(0, ${y}px, 0) scale(${scale})`;
-  }, [progress]);
+  const heroTitleTransform = useMemo(() => `translate3d(0, ${Math.min(progress * 260, 90)}px, 0)`, [progress]);
 
   return (
     <main className="vibor-font min-h-screen overflow-x-hidden bg-black text-white">
@@ -299,27 +291,14 @@ export function PingStorePage(_: PingStorePageProps) {
           />
           <div className="hero-vignette absolute inset-0" />
 
-          <div className="absolute inset-x-0 top-[8vh] z-0 select-none px-5 md:px-10">
-            <h1 className="max-w-full whitespace-nowrap text-center text-[22vw] font-medium uppercase leading-[0.82] text-white drop-shadow-[0_18px_42px_rgba(0,0,0,0.95)] md:text-[24vw]">
+          <div className="absolute inset-x-0 top-[17vh] z-10 select-none px-5 md:px-10" style={{ transform: heroTitleTransform }}>
+            <h1 className="max-w-full whitespace-nowrap text-center text-[23vw] font-medium uppercase leading-[0.82] text-white drop-shadow-[0_18px_42px_rgba(0,0,0,0.95)] md:text-[25vw]">
               Ping!
             </h1>
           </div>
 
-          <div className="relative z-10 grid min-h-[calc(100vh-5rem)] grid-rows-[1fr_auto] px-5 pb-8 md:px-10">
-            <div className="relative min-h-[50vh] md:min-h-[58vh]">
-              <div
-                className="absolute inset-x-0 bottom-0 top-[6%] mx-auto flex max-w-5xl items-center justify-center will-change-transform"
-                style={{ transform: heroTransform }}
-              >
-                <ProductImage
-                  alt="Ping ring on phone with green signal light"
-                  className="h-[min(50vh,32rem)] w-[min(92vw,58rem)] border border-white/10 shadow-[0_40px_120px_rgba(0,0,0,0.72)]"
-                  imageClassName="object-center"
-                  src="/media/ping-phone-ring.png"
-                />
-              </div>
-            </div>
-
+          <div className="relative z-20 grid min-h-[calc(100vh-5rem)] grid-rows-[1fr_auto] px-5 pb-8 md:px-10">
+            <div className="min-h-[50vh] md:min-h-[58vh]" />
             <div className="grid gap-6 border-t border-white/20 bg-black/10 pt-6 backdrop-blur-[2px] lg:grid-cols-[0.84fr_1.16fr]">
               <p data-reveal className="max-w-xs text-[10px] uppercase leading-5 tracking-[0.2em] text-white/58">
                 Based in real-world connection and working everywhere modern NFC readers already exist.
@@ -359,7 +338,7 @@ export function PingStorePage(_: PingStorePageProps) {
         </div>
 
         {productLines.map((product, index) => (
-          <ProductCard key={product.code} product={product} index={index} progress={progress} />
+          <ProductCard key={product.code} product={product} index={index} />
         ))}
       </section>
 
